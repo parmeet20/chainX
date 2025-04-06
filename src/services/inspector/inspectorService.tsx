@@ -35,6 +35,29 @@ export const getAllMyInspectedProducts = async (
     }));
 };
 
+export const getInspectorDetails = async (
+  program: Program<SupplyChain>,
+  prodPda: string
+): Promise<IProductInspector> => {
+  const prod = await program.account.productInspector.fetch(
+    new PublicKey(prodPda)
+  );
+  return {
+    inspector_id: prod.inspectorId.toString(),
+    name: prod.name,
+    latitude: prod.latitude,
+    longitude: prod.longitude,
+    product_id: Number(prod.productId),
+    inspection_outcome: prod.inspectionOutcome,
+    notes: prod.notes,
+    inspection_date: Number(prod.inspectionDate),
+    fee_charge_per_product: Number(prod.feeChargePerProduct) / LAMPORTS_PER_SOL,
+    balance: Number(prod.balance || 0),
+    owner: prod.owner,
+    publicKey: new PublicKey(prodPda),
+  };
+};
+
 export const payInspectorForInspection = async (
   program: Program<SupplyChain>,
   inspector_pda: string,

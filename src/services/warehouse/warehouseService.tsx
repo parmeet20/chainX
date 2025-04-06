@@ -283,3 +283,34 @@ export const sendLogisticToSeller = async (
     .rpc();
   return tx;
 };
+
+export const getWarehouseByProdPda = async (
+  program: Program<SupplyChain>,
+  prodPda: string
+): Promise<IWarehouse> => {
+  const warehouse = await program.account.warehouse.all();
+  const myWarehouse = warehouse.find(
+    (w) => w.account.productPda.toString() === prodPda.toString()
+  );
+  if (!myWarehouse) {
+    throw new Error("Warehouse not found for the given product PDA");
+  }
+  return {
+    warehouse_id: myWarehouse.account.warehouseId,
+    factory_id: myWarehouse.account.factoryId,
+    created_at: myWarehouse.account.createdAt,
+    name: myWarehouse.account.name,
+    description: myWarehouse.account.description,
+    product_id: myWarehouse.account.productId,
+    product_count: myWarehouse.account.productCount,
+    latitude: myWarehouse.account.latitude,
+    longitude: myWarehouse.account.longitude,
+    balance: Number(myWarehouse.account.balance / LAMPORTS_PER_SOL),
+    contact_details: myWarehouse.account.contactDetails,
+    owner: myWarehouse.account.owner,
+    warehouse_size: myWarehouse.account.warehouseSize,
+    logistic_count: myWarehouse.account.logisticCount,
+    product_pda: myWarehouse.account.productPda,
+    publicKey: myWarehouse.publicKey,
+  };
+};

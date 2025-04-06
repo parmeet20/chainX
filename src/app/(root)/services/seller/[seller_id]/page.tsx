@@ -1,19 +1,30 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Marker, Popup } from "react-leaflet";
 import { ISeller, IOrder } from "@/utils/types";
 import { getProvider } from "@/services/blockchain";
-import { getSeller } from "@/services/seller/sellerService";
+import {
+  getSeller,
+  withdrawSellerBalance,
+} from "@/services/seller/sellerService";
 import { getAllMyOrders } from "@/services/order/orderService";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OrderCard from "@/components/cards/order-card";
 import SellerProductListPage from "@/pages/SellerProductListPage";
+import { toast } from "sonner";
+import WithdrawDrawer from "@/components/drawer/withdraw-drawer";
 
 const Map = dynamic(
   () => import("@/components/shared/map").then((mod) => mod.Map),
@@ -30,6 +41,8 @@ const SellerDetailPage = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orders, setOrders] = useState<IOrder[]>([]);
+  const [isWithdrawDrawerOpen, setIsWithdrawDrawerOpen] = useState(false); // State for WithdrawDrawer
+  const [amount, setAmount] = useState<number>(0);
   const { publicKey, sendTransaction, signTransaction } = useWallet();
 
   const program = useMemo(() => {
@@ -42,24 +55,55 @@ const SellerDetailPage = ({
     const o = await getAllMyOrders(program, seller.publicKey.toString());
     setOrders(o);
   };
-  useEffect(() => {
-    const fetchSellerAndOrders = async () => {
-      try {
-        if (!program || !publicKey) return;
+  const fetchSellerAndOrders = async () => {
+    try {
+      if (!program || !publicKey) return;
 
-        const sellerData = await getSeller(program, id);
-        setSeller(sellerData);
-      } catch (err) {
-        setError("Failed to load seller or order details");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const sellerData = await getSeller(program, id);
+      setSeller(sellerData);
+    } catch (err) {
+      setError("Failed to load seller or order details");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchSellerAndOrders();
     console.log(seller);
   }, [program, id]);
 
+  async function handleWithdrawBalance() {
+    try {
+      if (!program || !publicKey || !id) return;
+      setLoading(true); // Set loading state to true
+      const tx = await withdrawSellerBalance(
+        program,
+        id.toString(),
+        amount,
+        publicKey
+      );
+      toast("Withdraw successful", {
+        description: `Withdrawed ${amount} SOL`,
+        action: (
+          <a href={`https://explorer.solana.com/tx/${tx}?cluster=devnet`}>
+            Signature
+          </a>
+        ),
+      });
+      setAmount(0); // Reset amount after successful withdrawal
+      setIsWithdrawDrawerOpen(false); // Close the drawer
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false); // Reset loading state
+      fetchSellerAndOrders();
+      handleCloseWithdrawDrawer();
+    }
+  }
+  const handleCloseWithdrawDrawer = () => {
+    setIsWithdrawDrawerOpen(!isWithdrawDrawerOpen); // Function to close the drawer
+  };
   if (error || !seller)
     return <div className="container mx-auto p-6 text-red-500">{error}</div>;
 
@@ -123,6 +167,18 @@ const SellerDetailPage = ({
               )
             )}
           </CardContent>
+          {seller?.balance > 0 && (
+            <CardFooter>
+              <WithdrawDrawer
+                balance={Number(seller.balance)}
+                handleWithdraw={handleWithdrawBalance}
+                amount={amount}
+                setAmount={setAmount}
+                handleClose={handleCloseWithdrawDrawer} // Pass handleClose
+                loading={loading} // Pass loading state
+              />{" "}
+            </CardFooter>
+          )}
         </Card>
 
         <Card className="h-96">

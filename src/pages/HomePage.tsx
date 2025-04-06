@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Card,
   CardHeader,
@@ -9,13 +9,21 @@ import {
 import Link from "next/link";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import PlatformFeeDrawer from "@/components/drawer/PlatformFeeDrawer";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { getProvider } from "@/services/blockchain";
+import { toast } from "sonner";
+import { isOwner } from "@/services/owner/ContractOwnerService";
 
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
 const HomePage = () => {
   const [globeWidth, setGlobeWidth] = useState(0);
   const [globeHeight, setGlobeHeight] = useState(0);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isOwnerWallet, setIsOwnerWallet] = useState<boolean>(false);
 
   // Globe configuration
   const N = 20;
@@ -26,23 +34,26 @@ const HomePage = () => {
     endLng: (Math.random() - 0.5) * 360,
     color: [
       ["#2563eb", "#3b82f6", "#6366f1"][Math.round(Math.random() * 2)],
-      ["#9333ea", "#c026d3", "#db2777"][Math.round(Math.random() * 2)]
+      ["#9333ea", "#c026d3", "#db2777"][Math.round(Math.random() * 2)],
     ],
   }));
 
   // Feature cards data
   const features = [
-    { 
-      title: "Blockchain Transparency", 
-      description: "Every transaction and movement recorded immutably on the high-performance Solana blockchain." 
+    {
+      title: "Blockchain Transparency",
+      description:
+        "Every transaction and movement recorded immutably on the high-performance Solana blockchain.",
     },
-    { 
-      title: "Real-Time Tracking", 
-      description: "Monitor shipments with live data feeds and potential IoT sensor integration, secured by Solana." 
+    {
+      title: "Real-Time Tracking",
+      description:
+        "Monitor shipments with live data feeds and potential IoT sensor integration, secured by Solana.",
     },
-    { 
-      title: "Smart Contracts", 
-      description: "Automate payments, agreements, and compliance checks using efficient Solana smart contracts." 
+    {
+      title: "Smart Contracts",
+      description:
+        "Automate payments, agreements, and compliance checks using efficient Solana smart contracts.",
     },
   ];
 
@@ -52,7 +63,25 @@ const HomePage = () => {
     { value: "~400ms", label: "Average Block Time" },
     { value: "<$0.00025", label: "Avg. Transaction Fee" },
   ];
+  const { publicKey, sendTransaction, signTransaction } = useWallet();
 
+  const program = useMemo(() => {
+    if (publicKey && signTransaction && sendTransaction) {
+      try {
+        return getProvider(publicKey, signTransaction, sendTransaction);
+      } catch (error) {
+        console.error("Error getting provider:", error);
+        toast.error("Failed to initialize blockchain connection.");
+        return null;
+      }
+    }
+    return null;
+  }, [publicKey, signTransaction, sendTransaction]);
+  const isCurrentUserOwner = async () => {
+    if (!publicKey || !program) return;
+    const o = await isOwner(program, publicKey);
+    setIsOwnerWallet(o);
+  };
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
@@ -62,8 +91,9 @@ const HomePage = () => {
     };
     updateSize();
     window.addEventListener("resize", updateSize);
+    isCurrentUserOwner();
     return () => window.removeEventListener("resize", updateSize);
-  }, []);
+  }, [program, publicKey]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -75,7 +105,11 @@ const HomePage = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
   };
 
   return (
@@ -136,16 +170,21 @@ const HomePage = () => {
             on the speed and efficiency of Solana.
           </motion.p>
 
-          <motion.div className="flex justify-center gap-6 mb-24" variants={itemVariants}>
+          <motion.div
+            className="flex justify-center gap-6 mb-24"
+            variants={itemVariants}
+          >
             <Link href="/profile" legacyBehavior>
-              <a className={
-                "inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white transition duration-300 ease-in-out transform " +
-                "bg-gradient-to-r from-blue-600 to-purple-600 border border-transparent rounded-full shadow-lg " +
-                "hover:scale-105 hover:shadow-blue-500/40 " +
-                "dark:hover:shadow-purple-500/60 " +
-                "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " +
-                "focus:ring-offset-white dark:focus:ring-offset-gray-950"
-              }>
+              <a
+                className={
+                  "inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white transition duration-300 ease-in-out transform " +
+                  "bg-gradient-to-r from-blue-600 to-purple-600 border border-transparent rounded-full shadow-lg " +
+                  "hover:scale-105 hover:shadow-blue-500/40 " +
+                  "dark:hover:shadow-purple-500/60 " +
+                  "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " +
+                  "focus:ring-offset-white dark:focus:ring-offset-gray-950"
+                }
+              >
                 Get Started
                 <svg
                   className="ml-2 -mr-1 w-5 h-5"
@@ -161,6 +200,11 @@ const HomePage = () => {
                 </svg>
               </a>
             </Link>
+            {isOwnerWallet && (
+              <Button onClick={() => setIsDrawerOpen(true)}>
+                Update Platform Fee
+              </Button>
+            )}
           </motion.div>
         </div>
 
@@ -171,11 +215,13 @@ const HomePage = () => {
         >
           {features.map((feature, index) => (
             <motion.div key={index} variants={itemVariants}>
-              <Card className={
-                "transition-all duration-300 ease-in-out rounded-xl overflow-hidden backdrop-blur-lg " +
-                "bg-white/90 border border-slate-100 shadow-xl hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 " +
-                "dark:bg-slate-800/60 dark:border-slate-700/80 dark:hover:border-indigo-500/80"
-              }>
+              <Card
+                className={
+                  "transition-all duration-300 ease-in-out rounded-xl overflow-hidden backdrop-blur-lg " +
+                  "bg-white/90 border border-slate-100 shadow-xl hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 " +
+                  "dark:bg-slate-800/60 dark:border-slate-700/80 dark:hover:border-indigo-500/80"
+                }
+              >
                 <CardHeader className="p-6">
                   <CardTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
                     {feature.title}
@@ -212,6 +258,11 @@ const HomePage = () => {
           </div>
         </motion.div>
       </motion.main>
+
+      <PlatformFeeDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </div>
   );
 };

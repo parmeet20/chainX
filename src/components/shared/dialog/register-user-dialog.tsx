@@ -35,6 +35,7 @@ const roles = [
   "FACTORY",
   "INSPECTOR",
   "LOGISTICS",
+  "CUSTOMER",
 ] as const;
 
 const formSchema = z.object({
@@ -59,7 +60,7 @@ export function RegisterUserDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      role: "WAREHOUSE",
+      role: "CUSTOMER",
     },
   });
 

@@ -1,4 +1,5 @@
 "use client";
+import CustomerServicePage from "@/pages/services/CustomerServicePage";
 import FactoryServicePage from "@/pages/services/FactoryServicePage";
 import LogisticServicePage from "@/pages/services/LogisticServicePage";
 import ProductInspectorService from "@/pages/services/ProductInspectorService";
@@ -46,6 +47,13 @@ const ServicePage = () => {
     return (
       <>
         <LogisticServicePage />
+      </>
+    );
+  }
+  if (user?.role === "CUSTOMER") {
+    return (
+      <>
+        <CustomerServicePage />
       </>
     );
   }

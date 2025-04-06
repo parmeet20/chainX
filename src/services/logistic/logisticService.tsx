@@ -122,7 +122,6 @@ export const createLogistic = async (
       mode,
       contactInfo,
       product.productId,
-      new BN(productStock),
       w.warehouseId,
       latitude,
       longitude

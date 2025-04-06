@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/supply_chain.json`.
  */
 export type SupplyChain = {
-  "address": "AGyhvJht9bc3CBhd52gWHgQjy2RSZspJtQmX6PqK8XfG",
+  "address": "9po2ZB1FQxGy5xDX8XZ6ZRDseNzmCf18qycJuRAqfFTm",
   "metadata": {
     "name": "supplyChain",
     "version": "0.1.0",
@@ -13,6 +13,59 @@ export type SupplyChain = {
     "description": "Created with Anchor"
   },
   "instructions": [
+    {
+      "name": "buyProductAsCustomerCtx",
+      "discriminator": [
+        30,
+        190,
+        226,
+        204,
+        4,
+        32,
+        136,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "customerProduct",
+          "writable": true
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        },
+        {
+          "name": "sellerProduct",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "product"
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "stock",
+          "type": "u64"
+        }
+      ]
+    },
     {
       "name": "buyProductAsWarehouse",
       "discriminator": [
@@ -179,10 +232,6 @@ export type SupplyChain = {
         },
         {
           "name": "productId",
-          "type": "u64"
-        },
-        {
-          "name": "productStock",
           "type": "u64"
         },
         {
@@ -781,6 +830,62 @@ export type SupplyChain = {
       ]
     },
     {
+      "name": "updatePlatformFee",
+      "discriminator": [
+        162,
+        97,
+        186,
+        47,
+        93,
+        113,
+        176,
+        243
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "programState",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "withdrawBalanceAsFactory",
       "discriminator": [
         204,
@@ -858,6 +963,56 @@ export type SupplyChain = {
         },
         {
           "name": "logistics",
+          "writable": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdrawBalanceAsSellerInstruction",
+      "discriminator": [
+        148,
+        244,
+        21,
+        111,
+        114,
+        14,
+        198,
+        191
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "programsState",
+          "writable": true
+        },
+        {
+          "name": "platformAddress",
           "writable": true
         },
         {
@@ -974,6 +1129,19 @@ export type SupplyChain = {
     }
   ],
   "accounts": [
+    {
+      "name": "customerProduct",
+      "discriminator": [
+        75,
+        186,
+        4,
+        118,
+        148,
+        174,
+        80,
+        255
+      ]
+    },
     {
       "name": "factory",
       "discriminator": [
@@ -1126,106 +1294,143 @@ export type SupplyChain = {
     },
     {
       "code": 6001,
+      "name": "invalidPlatformFee",
+      "msg": "Can not set platform fee more than 5%"
+    },
+    {
+      "code": 6002,
       "name": "programAlreadyInitialized",
       "msg": "program already initialized"
     },
     {
-      "code": 6002,
+      "code": 6003,
       "name": "invalidProductId",
       "msg": "invalid product id"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "insufficientStock",
       "msg": "insufficient stock"
     },
     {
-      "code": 6004,
+      "code": 6005,
       "name": "insufficientBalance",
       "msg": "insufficient balance"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "insifficentWithdraw",
       "msg": "should withdraw atleast 1 SOL"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "invalidWarehouse",
       "msg": "warehouse not found"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "invalidLogistics",
       "msg": "logistics not found"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "invalidInspectionOutcome",
       "msg": "inspection outcome too long"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "invalidNotes",
       "msg": "notes too long"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "invalidName",
       "msg": "name too long"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "invalidDescription",
       "msg": "description too long"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "invalidContactInfo",
       "msg": "contact info too long"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "invalidRole",
       "msg": "invalid role"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "invalidFactory",
       "msg": "invalid factory"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "qualityChecked",
       "msg": "quality already checked"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "productNotQualityChecked",
       "msg": "product not quality checked"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "invalidInspectorId",
       "msg": "invalid inspector id"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "invalidInspector",
       "msg": "invalid inspector"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "invalidUser",
       "msg": "invalid user"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "overflow",
       "msg": "overflow"
     }
   ],
   "types": [
+    {
+      "name": "customerProduct",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "productId",
+            "type": "u64"
+          },
+          {
+            "name": "productPda",
+            "type": "pubkey"
+          },
+          {
+            "name": "sellerPda",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "stockQuantity",
+            "type": "u64"
+          },
+          {
+            "name": "purchasedOn",
+            "type": "u64"
+          }
+        ]
+      }
+    },
     {
       "name": "factory",
       "type": {
@@ -1592,6 +1797,10 @@ export type SupplyChain = {
             "type": "u64"
           },
           {
+            "name": "balance",
+            "type": "u64"
+          },
+          {
             "name": "owner",
             "type": "pubkey"
           }
@@ -1710,6 +1919,14 @@ export type SupplyChain = {
           {
             "name": "inspectorCount",
             "type": "u64"
+          },
+          {
+            "name": "productCount",
+            "type": "u64"
+          },
+          {
+            "name": "isCustomer",
+            "type": "bool"
           },
           {
             "name": "isInitialized",

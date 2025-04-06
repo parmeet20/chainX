@@ -21,13 +21,13 @@ import { getProvider } from "@/services/blockchain";
 import { getProduct } from "@/services/product/productService";
 import Link from "next/link";
 
-export const ProductSellerCard = ({
+export const CustomerProductCard = ({
   productPda,
-  sellerPda,
   stock_quantity,
+  customerProductPda,
 }: {
   productPda: string;
-  sellerPda?: string;
+  customerProductPda?: string;
   stock_quantity: number;
 }) => {
   const { publicKey, sendTransaction, signTransaction } = useWallet();
@@ -126,9 +126,7 @@ export const ProductSellerCard = ({
       </CardContent>
 
       <CardFooter className="bg-muted/20 border-t p-4 gap-3">
-        <Link
-          href={`/services/seller/${sellerPda}/${product.publicKey.toString()}`}
-        >
+        <Link href={`/services/product/${customerProductPda}`}>
           <Button>View Details</Button>
         </Link>
       </CardFooter>

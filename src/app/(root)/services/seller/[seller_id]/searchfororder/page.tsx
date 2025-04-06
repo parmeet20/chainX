@@ -28,7 +28,7 @@ const SearchForProductPage = () => {
     return <>No warehouses found</>;
   }
   return (
-    <div>
+    <div className="pt-24 p-8 sm:grid sm:grid-cols-3 gap-8">
       {warehouses.map((w) => (
         <WarehouseCard
           key={w.publicKey.toString()}

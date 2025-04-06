@@ -1,6 +1,7 @@
 import { SupplyChain } from "@/utils/supply_chain";
 import { BN, Program } from "@coral-xyz/anchor";
 import {
+  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   TransactionSignature,
@@ -65,6 +66,7 @@ export const getAllSellers = async (
     registered_at: Number(seller.account.registeredAt),
     order_count: Number(seller.account.orderCount),
     owner: seller.account.owner,
+    balance: seller.account.balance,
     publicKey: seller.publicKey,
   }));
 };
@@ -85,6 +87,7 @@ export const getSeller = async (
     registered_at: Number(seller.registeredAt),
     order_count: Number(seller.orderCount),
     owner: seller.owner,
+    balance: seller.balance,
     publicKey: new PublicKey(seller_pda),
   };
 };
@@ -122,6 +125,45 @@ export const recieveProdctAsSeller = async (
       sellerProductStock: seller_productPda,
       logistics: new PublicKey(logisticPda),
       order: new PublicKey(orderPda),
+      systemProgram: SystemProgram.programId,
+    })
+    .signers([])
+    .rpc();
+  return tx;
+};
+
+export const withdrawSellerBalance = async (
+  program: Program<SupplyChain>,
+  seller_pda: string,
+  amount: number,
+  publicKey: PublicKey
+): Promise<TransactionSignature> => {
+  const user_pda = await getUserWithPda(program, publicKey);
+  const usr = await program.account.user.fetch(new PublicKey(user_pda));
+  const [transactionPda] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("transaction"),
+      user_pda.toBuffer(),
+      usr.transactionCount.add(new BN(1)).toArrayLike(Buffer, "le", 8),
+    ],
+    program.programId
+  );
+
+  const [programStatePda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("program_state")],
+    program.programId
+  );
+  const ownr = await program.account.programState.fetch(programStatePda);
+
+  const tx = await program.methods
+    .withdrawBalanceAsSellerInstruction(new BN(amount * LAMPORTS_PER_SOL))
+    .accountsPartial({
+      transaction: transactionPda,
+      seller: new PublicKey(seller_pda),
+      user: user_pda,
+      programsState: programStatePda,
+      platformAddress: ownr.owner,
+      owner: publicKey,
       systemProgram: SystemProgram.programId,
     })
     .signers([])

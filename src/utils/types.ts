@@ -51,7 +51,7 @@ export interface IProduct {
     product_description: string;
     batch_number: string;
     factory_id: BN;
-    factory_pda: BN;
+    factory_pda: PublicKey;
     product_price: BN;
     product_stock: BN;
     quality_checked: boolean;
@@ -72,6 +72,7 @@ export interface ISeller {
     contact_info: string;
     registered_at: BN;
     order_count: BN;
+    balance: BN;
     owner: PublicKey;
     publicKey: PublicKey;
 }
@@ -156,8 +157,18 @@ export interface ISellerProductStock {
     seller_id: BN;
     product_id: BN;
     stock_quantity: BN;
+    seller_pda: PublicKey;
     stock_price: BN;
     created_at: BN;
     product_pda: PublicKey;
+    publicKey: PublicKey;
+}
+export interface ICustomerProduct {
+    product_id: BN;
+    product_pda: PublicKey;
+    owner: PublicKey;
+    seller_pda: PublicKey;
+    stock_quantity: BN;
+    purchased_on: BN;
     publicKey: PublicKey;
 }

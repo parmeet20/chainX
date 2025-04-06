@@ -1,5 +1,5 @@
 {
-  "address": "AGyhvJht9bc3CBhd52gWHgQjy2RSZspJtQmX6PqK8XfG",
+  "address": "9po2ZB1FQxGy5xDX8XZ6ZRDseNzmCf18qycJuRAqfFTm",
   "metadata": {
     "name": "supply_chain",
     "version": "0.1.0",
@@ -7,6 +7,59 @@
     "description": "Created with Anchor"
   },
   "instructions": [
+    {
+      "name": "buy_product_as_customer_ctx",
+      "discriminator": [
+        30,
+        190,
+        226,
+        204,
+        4,
+        32,
+        136,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "customer_product",
+          "writable": true
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        },
+        {
+          "name": "seller_product",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "product"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "stock",
+          "type": "u64"
+        }
+      ]
+    },
     {
       "name": "buy_product_as_warehouse",
       "discriminator": [
@@ -173,10 +226,6 @@
         },
         {
           "name": "product_id",
-          "type": "u64"
-        },
-        {
-          "name": "product_stock",
           "type": "u64"
         },
         {
@@ -775,6 +824,62 @@
       ]
     },
     {
+      "name": "update_platform_fee",
+      "discriminator": [
+        162,
+        97,
+        186,
+        47,
+        93,
+        113,
+        176,
+        243
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "withdraw_balance_as_factory",
       "discriminator": [
         204,
@@ -852,6 +957,56 @@
         },
         {
           "name": "logistics",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw_balance_as_seller_instruction",
+      "discriminator": [
+        148,
+        244,
+        21,
+        111,
+        114,
+        14,
+        198,
+        191
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "programs_state",
+          "writable": true
+        },
+        {
+          "name": "platform_address",
           "writable": true
         },
         {
@@ -968,6 +1123,19 @@
     }
   ],
   "accounts": [
+    {
+      "name": "CustomerProduct",
+      "discriminator": [
+        75,
+        186,
+        4,
+        118,
+        148,
+        174,
+        80,
+        255
+      ]
+    },
     {
       "name": "Factory",
       "discriminator": [
@@ -1120,106 +1288,143 @@
     },
     {
       "code": 6001,
+      "name": "InvalidPlatformFee",
+      "msg": "Can not set platform fee more than 5%"
+    },
+    {
+      "code": 6002,
       "name": "ProgramAlreadyInitialized",
       "msg": "program already initialized"
     },
     {
-      "code": 6002,
+      "code": 6003,
       "name": "InvalidProductId",
       "msg": "invalid product id"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "InsufficientStock",
       "msg": "insufficient stock"
     },
     {
-      "code": 6004,
+      "code": 6005,
       "name": "InsufficientBalance",
       "msg": "insufficient balance"
     },
     {
-      "code": 6005,
+      "code": 6006,
       "name": "InsifficentWithdraw",
       "msg": "should withdraw atleast 1 SOL"
     },
     {
-      "code": 6006,
+      "code": 6007,
       "name": "InvalidWarehouse",
       "msg": "warehouse not found"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidLogistics",
       "msg": "logistics not found"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "InvalidInspectionOutcome",
       "msg": "inspection outcome too long"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "InvalidNotes",
       "msg": "notes too long"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "InvalidName",
       "msg": "name too long"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "InvalidDescription",
       "msg": "description too long"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "InvalidContactInfo",
       "msg": "contact info too long"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InvalidRole",
       "msg": "invalid role"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidFactory",
       "msg": "invalid factory"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "QualityChecked",
       "msg": "quality already checked"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "ProductNotQualityChecked",
       "msg": "product not quality checked"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidInspectorId",
       "msg": "invalid inspector id"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "InvalidInspector",
       "msg": "invalid inspector"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "InvalidUser",
       "msg": "invalid user"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "Overflow",
       "msg": "overflow"
     }
   ],
   "types": [
+    {
+      "name": "CustomerProduct",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "product_id",
+            "type": "u64"
+          },
+          {
+            "name": "product_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "stock_quantity",
+            "type": "u64"
+          },
+          {
+            "name": "purchased_on",
+            "type": "u64"
+          }
+        ]
+      }
+    },
     {
       "name": "Factory",
       "type": {
@@ -1586,6 +1791,10 @@
             "type": "u64"
           },
           {
+            "name": "balance",
+            "type": "u64"
+          },
+          {
             "name": "owner",
             "type": "pubkey"
           }
@@ -1704,6 +1913,14 @@
           {
             "name": "inspector_count",
             "type": "u64"
+          },
+          {
+            "name": "product_count",
+            "type": "u64"
+          },
+          {
+            "name": "is_customer",
+            "type": "bool"
           },
           {
             "name": "is_initialized",
