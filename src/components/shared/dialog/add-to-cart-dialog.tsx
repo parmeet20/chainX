@@ -75,7 +75,7 @@ export function AddToCartDialog({
         values.longitude,
         values.product_stock,
         product.factory_id,
-        product.factory_pda,
+        product.factory_pda.toString(),
         product.publicKey.toString(),
         publicKey
       );
