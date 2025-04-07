@@ -42,7 +42,6 @@ export const createSeller = async (
       owner: publicKey,
       systemProgram: SystemProgram.programId,
     })
-    .signers([])
     .rpc();
   return tx;
 };
