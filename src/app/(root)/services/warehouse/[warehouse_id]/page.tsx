@@ -128,7 +128,7 @@ const WarehousPdaPage = () => {
       toast("Logistic Partner Created!", {
         description: "Transaction confirmed successfully",
         action: (
-          <a href={`/${tx}`} target="blank">
+          <a href={`https://explorer.solana.com/tx/${tx}?cluster=devnet`}>
             Signature
           </a>
         ),

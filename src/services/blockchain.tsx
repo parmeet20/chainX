@@ -3,7 +3,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { AnchorProvider, Program, Wallet } from "@coral-xyz/anchor";
 import idl from "@/utils/supply_chain.json";
 
-const RPC_URL: string = "http://localhost:8899";
+const RPC_URL: string = "https://api.devnet.solana.com";
 const idl_object = JSON.parse(JSON.stringify(idl));
 
 export const getProvider = (
