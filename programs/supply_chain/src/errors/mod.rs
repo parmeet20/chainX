@@ -16,4 +16,8 @@ pub enum SupplyChainErrors {
     InvalidEmail,
     #[msg("Can not set platform fee more than 5%")]
     InvalidPlatformFee,
+    #[msg("description too long")]
+    InvalidDescription,
+    #[msg("contact info too long")]
+    InvalidContactInfo,
 }

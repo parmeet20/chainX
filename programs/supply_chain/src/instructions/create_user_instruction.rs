@@ -19,7 +19,7 @@ pub fn create_user(
     if email.len() > 64 {
         return Err(InvalidEmail.into());
     }
-    if user.is_initialized{
+    if user.is_initialized {
         return Err(UserAlreadyInitialized.into());
     }
     if role == "CUSTOMER" {

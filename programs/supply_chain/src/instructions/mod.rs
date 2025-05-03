@@ -4,3 +4,7 @@ pub mod change_platform_fee;
 pub use change_platform_fee::*;
 pub mod create_user_instruction;
 pub use create_user_instruction::*;
+pub mod create_factory_instruction;
+pub use create_factory_instruction::*;
+pub mod create_product_instruction;
+pub use create_product_instruction::*;
