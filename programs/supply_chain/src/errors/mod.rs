@@ -42,4 +42,8 @@ pub enum SupplyChainErrors {
     InsifficentWithdraw,
     #[msg("insufficient stock")]
     InsufficientStock,
+    #[msg("warehouse not found")]
+    InvalidWarehouse,
+    #[msg("logistics not found")]
+    InvalidLogistics,
 }

@@ -163,4 +163,82 @@ pub mod supply_chain {
     ) -> Result<()> {
         instructions::withdraw_balance_as_warehouse_instruction(ctx, amount)
     }
+
+    pub fn create_order_instruction_as_seller(
+        ctx: Context<CreateOrderAsSellerCtx>,
+        warehouse_id: u64,
+        product_id: u64,
+        product_stock: u64,
+    ) -> Result<()> {
+        instructions::create_order_instruction_as_seller(
+            ctx,
+            warehouse_id,
+            product_id,
+            product_stock,
+        )
+    }
+    pub fn create_logistics_instruction(
+        ctx: Context<CreateLogisticsContext>,
+        name: String,
+        transportation_mode: String,
+        contact_info: String,
+        product_id: u64,
+        warehouse_id: u64,
+        latitude: f64,
+        longitude: f64,
+    ) -> Result<()> {
+        instructions::create_logistics_instruction(
+            ctx,
+            name,
+            transportation_mode,
+            contact_info,
+            product_id,
+            warehouse_id,
+            latitude,
+            longitude,
+        )
+    }
+
+    pub fn send_logistics_to_seller_instruction(
+        ctx: Context<SendLogisticsToSellerCtx>,
+        logistics_id: u64,
+        product_id: u64,
+        warehouse_id: u64,
+        shipping_cost: u64,
+    ) -> Result<()> {
+        instructions::send_logistics_to_seller_instruction(
+            ctx,
+            logistics_id,
+            product_id,
+            warehouse_id,
+            shipping_cost,
+        )
+    }
+
+    pub fn receive_product_instruction_as_seller(
+        ctx: Context<ReceiveProductAsSellerCtx>,
+    ) -> Result<()> {
+        instructions::receive_product_instruction_as_seller(ctx)
+    }
+
+    pub fn withdraw_balance_as_logistics_instruction(
+        ctx: Context<WithdrawBalanceAsLogisticCtx>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::withdraw_balance_as_logistics_instruction(ctx, amount)
+    }
+
+    pub fn withdraw_balance_as_seller_instruction(
+        ctx: Context<WithdrawBalanceAsSellerCtx>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::withdraw_balance_as_seller_instruction(ctx, amount)
+    }
+
+    pub fn buy_product_as_customer_ctx(
+        ctx: Context<BuyProductAsCustomerCtx>,
+        stock: u64,
+    ) -> Result<()> {
+        instructions::buy_product_as_customer_ctx(ctx, stock)
+    }
 }
