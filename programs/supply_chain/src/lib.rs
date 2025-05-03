@@ -64,4 +64,63 @@ pub mod supply_chain {
             mrp,
         )
     }
+
+    pub fn inspect_product_instruction(
+        ctx: Context<InspectProductContext>,
+        name: String,
+        latitude: f64,
+        longitude: f64,
+        product_id: u64,
+        inspection_outcome: String,
+        notes: String,
+        fee_charge_per_product: u64,
+    ) -> Result<()> {
+        instructions::inspect_product_instruction(
+            ctx,
+            name,
+            latitude,
+            longitude,
+            product_id,
+            inspection_outcome,
+            notes,
+            fee_charge_per_product,
+        )
+    }
+
+    pub fn pay_product_inspector_instruction(
+        ctx: Context<PayProductInspectorInstruction>,
+        inspector_id: u64,
+        product_id: u64,
+    ) -> Result<()> {
+        instructions::pay_product_inspector_instruction(ctx, inspector_id, product_id)
+    }
+
+    pub fn withdraw_inspector_balance(
+        ctx: Context<WithdrawInspectorBalanceCtx>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::withdraw_inspector_balance(ctx, amount)
+    }
+
+    pub fn create_warehouse_instrution(
+        ctx: Context<CreateWarehouseCtx>,
+        name: String,
+        description: String,
+        contact_deatails: String,
+        factory_id: u64,
+        warehouse_size: u64,
+        latitude: f64,
+        longitude: f64,
+    ) -> Result<()> {
+        instructions::create_warehouse_instrution(
+            ctx,
+            name,
+            description,
+            contact_deatails,
+            factory_id,
+            warehouse_size,
+            latitude,
+            longitude,
+        )
+    }
 }

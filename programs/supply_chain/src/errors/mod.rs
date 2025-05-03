@@ -20,4 +20,24 @@ pub enum SupplyChainErrors {
     InvalidDescription,
     #[msg("contact info too long")]
     InvalidContactInfo,
+    #[msg("invalid factory")]
+    InvalidFactory,
+    #[msg("invalid product id")]
+    InvalidProductId,
+    #[msg("quality already checked")]
+    QualityChecked,
+    #[msg("inspection outcome too long")]
+    InvalidInspectionOutcome,
+    #[msg("notes too long")]
+    InvalidNotes,
+    #[msg("overflow")]
+    Overflow,
+    #[msg("invalid inspector")]
+    InvalidInspectorId,
+    #[msg("product not quality checked")]
+    ProductNotQualityChecked,
+    #[msg("insufficient balance")]
+    InsufficientBalance,
+    #[msg("should withdraw atleast 1 SOL")]
+    InsifficentWithdraw,
 }
