@@ -40,4 +40,6 @@ pub enum SupplyChainErrors {
     InsufficientBalance,
     #[msg("should withdraw atleast 1 SOL")]
     InsifficentWithdraw,
+    #[msg("insufficient stock")]
+    InsufficientStock,
 }

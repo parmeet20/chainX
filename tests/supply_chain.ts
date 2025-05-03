@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { SupplyChain } from "../target/types/supply_chain";
 import fs from 'fs';
-import * as assert from 'assert'; // Added for assertions
+import * as assert from 'assert';
 
 const { PublicKey, SystemProgram } = anchor.web3;
 
@@ -14,6 +14,9 @@ const product_inspector = anchor.web3.Keypair.fromSecretKey(Uint8Array.from(keyp
 const keypair1 = './wallets/warehouse.json';
 const keypairData1 = JSON.parse(fs.readFileSync(keypair1, 'utf-8'));
 const warehouse_wallet = anchor.web3.Keypair.fromSecretKey(Uint8Array.from(keypairData1));
+const keypair2 = './wallets/seller.json';
+const keypairData2 = JSON.parse(fs.readFileSync(keypair2, 'utf-8'));
+const seller_wallet = anchor.web3.Keypair.fromSecretKey(Uint8Array.from(keypairData2));
 
 const keypairPath = './wallets/id.json';
 const keyPairData = JSON.parse(fs.readFileSync(keypairPath, 'utf-8'));
@@ -400,5 +403,117 @@ describe("supply_chain", () => {
     assert.strictEqual(warehouse.contactDetails, CONTACT_DETAILS, "Warehouse contact details should match");
     assert.strictEqual(warehouse.latitude, LATITUDE, "Warehouse latitude should match");
     assert.strictEqual(warehouse.longitude, LONGITUDE, "Warehouse longitude should match");
+  });
+
+  it('should buy product from factory as warehouse', async () => {
+    const creator = provider.wallet;
+    const [userFactoryPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("user"), creator.publicKey.toBuffer()],
+      program.programId
+    );
+    const userFactoryAccount = await program.account.user.fetch(userFactoryPda);
+    const f_id = userFactoryAccount.factoryCount;
+    const [factoryPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("factory"), userFactoryPda.toBuffer(), f_id.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+    const factory = await program.account.factory.fetch(factoryPda);
+    const p_id = factory.productCount;
+    const [productPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("product"), factoryPda.toBuffer(), p_id.toArrayLike(Buffer, "le", 8)],
+      program.programId
+    );
+    const [warehousePda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("user"), warehouse_wallet.publicKey.toBuffer()],
+      program.programId
+    );
+    const warehouse_user = await program.account.user.fetch(warehousePda);
+    const [wHousePda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("warehouse"), warehousePda.toBuffer(), warehouse_user.warehouseCount.toArrayLike(Buffer, 'le', 8)],
+      program.programId
+    );
+    const transaction_count = warehouse_user.transactionCount.add(new anchor.BN(1));
+    const [transactionPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("transaction"), warehousePda.toBuffer(), transaction_count.toArrayLike(Buffer, 'le', 8)],
+      program.programId
+    );
+    const QUANTITY = new anchor.BN(5);
+    const tx = await program.methods.buyProductAsWarehouse(p_id, f_id, QUANTITY)
+      .accountsPartial({
+        transaction: transactionPda,
+        user: warehousePda,
+        product: productPda,
+        factory: factoryPda,
+        warehouse: wHousePda,
+        warehouseOwner: warehouse_wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([warehouse_wallet])
+      .rpc();
+    // console.log("Your transaction signature: ", tx);
+    const transaction = await program.account.transaction.fetch(transactionPda);
+    assert.ok(transaction.amount, "Transaction amount should be set");
+  });
+
+  it('should create new seller user', async () => {
+    const [userPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("user"), seller_wallet.publicKey.toBuffer()],
+      program.programId
+    );
+    const NAME = "seller 1";
+    const ROLE = "SELLER";
+    const userAccount = await program.account.user.fetchNullable(userPda);
+    if (userAccount) {
+      assert.strictEqual(userAccount.name, NAME, "Existing seller name should match");
+      assert.strictEqual(userAccount.role, ROLE, "Existing seller role should match");
+    } else {
+      const tx = await program.methods.createUser(NAME, "demo3@example.com", ROLE)
+        .accountsPartial({
+          user: userPda,
+          owner: seller_wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([seller_wallet])
+        .rpc();
+      // console.log("Your transaction signature: ", tx);
+      const newUserAccount = await program.account.user.fetch(userPda);
+      assert.strictEqual(newUserAccount.name, NAME, "New seller name should match");
+      assert.strictEqual(newUserAccount.role, ROLE, "New seller role should match");
+      assert.strictEqual(newUserAccount.email, "demo3@example.com", "New seller role should match");
+    }
+  });
+
+  it('should withdraw balance from the factory', async () => {
+    const creator = provider.wallet;
+    const [userPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("user"), creator.publicKey.toBuffer()],
+      program.programId
+    );
+    const user = await program.account.user.fetch(userPda);
+    const factory_count = user.factoryCount;
+    const [factoryPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("factory"), userPda.toBuffer(), factory_count.toArrayLike(Buffer, 'le', 8)],
+      program.programId
+    );
+    const [transactionPda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("transaction"), userPda.toBuffer(), user.transactionCount.add(new anchor.BN(1)).toArrayLike(Buffer, 'le', 8)],
+      program.programId
+    );
+    const WITHDRAW_AMOUNT = new anchor.BN(1_000_000_000);
+    const tx = await program.methods.withdrawBalanceAsFactory(WITHDRAW_AMOUNT)
+      .accountsPartial({
+        user: userPda,
+        factory: factoryPda,
+        owner: creator.publicKey,
+        transaction: transactionPda,
+        programsState: programStatePda,
+        platformAddress: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([creator.payer])
+      .rpc();
+    // console.log("Your transaction signature: ", tx);
+    const transaction = await program.account.transaction.fetch(transactionPda);
+    assert.ok(transaction.amount.eq(WITHDRAW_AMOUNT), "Withdraw amount should match");
   });
 });

@@ -123,4 +123,38 @@ pub mod supply_chain {
             longitude,
         )
     }
+
+    pub fn withdraw_balance_as_factory(
+        ctx: Context<WithdrawBalanceAsFactoryCtx>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::withdraw_balance_as_factory(ctx, amount)
+    }
+
+    pub fn buy_product_as_warehouse(
+        ctx: Context<BuyProductAsWarehouseCtx>,
+        product_id: u64,
+        factory_id: u64,
+        stock_to_purchase: u64,
+    ) -> Result<()> {
+        instructions::buy_product_as_warehouse(ctx, product_id, factory_id, stock_to_purchase)
+    }
+
+    pub fn create_seller_instruction(
+        ctx: Context<CreateSellerCtx>,
+        name: String,
+        description: String,
+        latitude: f64,
+        longitude: f64,
+        contact_info: String,
+    ) -> Result<()> {
+        instructions::create_seller_instruction(
+            ctx,
+            name,
+            description,
+            latitude,
+            longitude,
+            contact_info,
+        )
+    }
 }
