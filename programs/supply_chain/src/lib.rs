@@ -157,4 +157,10 @@ pub mod supply_chain {
             contact_info,
         )
     }
+    pub fn withdraw_balance_as_warehouse_instruction(
+        ctx: Context<WithdrawBalanceAsWarehouseCtx>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::withdraw_balance_as_warehouse_instruction(ctx, amount)
+    }
 }

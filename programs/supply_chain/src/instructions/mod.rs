@@ -22,3 +22,5 @@ pub mod create_seller;
 pub use create_seller::*;
 pub mod buy_product_as_warehouse;
 pub use buy_product_as_warehouse::*;
+pub mod withdraw_balance_as_warehouse_instruction;
+pub use withdraw_balance_as_warehouse_instruction::*;
